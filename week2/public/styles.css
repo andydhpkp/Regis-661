@@ -39,3 +39,10 @@ footer {
   height: 100px;
   width: 100%;
 }
+
+#newFavsDiv {
+  color: blue;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}

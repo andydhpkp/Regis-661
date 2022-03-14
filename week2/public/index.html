@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./flexbox.css" />
+    <link rel="stylesheet" href="./styles.css" />
     <title>Build Fluid Layout</title>
   </head>
   <body>
@@ -12,21 +13,29 @@
         <nav>
           <ul>
             <li><a href="/">Home</a></li>
-            <li><a href="/about.html">About</a></li>
           </ul>
         </nav>
       </header>
 
       <div class="content">
         <form class="center" action="">
-          <label for="username">
-            Username:
-            <input id="username" type="text" />
+          <label for="name">
+            Name:
+            <input id="name" type="text" />
           </label>
-          <label for="password">
-            Password:
-            <input id="password" type="password" />
+          <label for="musicArtist">
+            Favorite Musical Artist:
+            <input id="musicArtist" type="text" />
           </label>
+          <label for="tvShow">
+            Favorite TV Show:
+            <input id="tvShow" type="text" />
+          </label>
+          <label for="movie">
+            Favorite Movie:
+            <input id="movie" type="text" />
+          </label>
+          <button type="button" onclick="displayFavs()">Click Me Once Filled Out</button>
         </form>
       </div>
 
@@ -34,10 +43,8 @@
         <nav>
           <ul>
             <li><a href="/">Home</a></li>
-            <li><a href="/about.html">About</a></li>
           </ul>
         </nav>
-        <p>Author: <a href="https://github.com/chan1ks">Morgan Worrell</a></p>
       </footer>
     </div>
   </body>
