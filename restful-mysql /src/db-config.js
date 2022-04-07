@@ -1,5 +1,7 @@
 const mysql = require('mysql');
-const queries = require('./queries/tasks.queries');
+const queries = require('./queries/tasks.queries')
+const authQueries = require('./queries/auth.queries');
+require('dotenv').config();
 
 const host = process.env.DB_HOST || 'localhost';
 
@@ -20,7 +22,7 @@ con.connect(function(err) {
   if (err) throw err;
   console.log('Connected!');
 
-  con.query(authQueries.CREATE_USERS_TABLE, function (err, result){
+  con.query(authQueries.CREATE_TABLE, function (err, result){
     if(err) throw err;
     console.log('Users table created or exists already!');
   });

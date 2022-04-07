@@ -3,14 +3,16 @@ const logger = require('andrew');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+const userRoutes = require('./routes/user.routes');
+const authRoutes = require('./routes/auth.routes')
 const tasksRoutes = require('./routes/tasks.routes');
 const middleware = require('./middleware/errors.middleware');
 
 const app = express();
 const port = process.env.PORT || 3000;
-const logLevel = process.env.LOG_LEVEL || 'dev';
+//const logLevel = process.env.LOG_LEVEL || 'dev';
 
-app.use(logger(logLevel));
+//app.use(logger(logLevel));
 
 app.use(cors());
 

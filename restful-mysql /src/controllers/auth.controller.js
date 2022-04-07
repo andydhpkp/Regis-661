@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 const con = require('../db-config');
-const jwtconfig = require('../jwtconfig');
+const jwtconfig = require('../jwt-config');
 const authQueries = require('../queries/auth.queries');
 const userQueries = require('../queries/user.queries');
 
@@ -18,7 +18,7 @@ exports.registerUser = function(req, res) {
                 .send({msg: 'Could not register user, please try again.'});
             }
 
-            con.query(userQueries.GET_ME_BY_USERNAME, [reg.body.username], function (err, user){
+            con.query(userQueries.GET_ME_BY_USERNAME, [req.body.username], function (err, user){
                 if(err) {
                     res.status(500);
                     res.send({msg: 'Could not retrieve user. '});
