@@ -13,9 +13,6 @@
  *  </li>
  * </ul>
  */
-
-// This is an IIFE (Immediately Invoked Function Expression).
-// What it does is in the name.
 (async () => {
   const tasks = await getTasks();
   console.log(tasks);
