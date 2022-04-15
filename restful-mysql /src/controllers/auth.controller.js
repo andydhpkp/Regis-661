@@ -1,79 +1,146 @@
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-const con = require('../db-config');
-const jwtconfig = require('../jwt-config');
-const authQueries = require('../queries/auth.queries');
-const userQueries = require('../queries/user.queries');
+const connection = require('../db-config');
+const {
+  GET_ME_BY_USERNAME,
+  GET_ME_BY_USERNAME_WITH_PASSWORD,
+  INSERT_NEW_USER,
+} = require('../queries/user.queries');
+const query = require('../utils/query');
+const {
+  refreshTokens,
+  generateAccessToken,
+  generateRefreshToken,
+} = require('../utils/jwt-helpers');
+const escape = require('../utils/escape');
 
-exports.registerUser = function(req, res) {
-    const passwordHash = bcrypt.hashSync(req.body.password);
+exports.register = async (req, res) => {
 
-    con.query(authQueries.INSERT_NEW_USER, [req.body.username, req.body.email, passwordHash],
-        function(err, result) {
-            if (err) {
-                console.log(err);
-                res
-                .status(500)
-                .send({msg: 'Could not register user, please try again.'});
-            }
+  const hash = bcrypt.hashSync(req.body.password);
+  const { username, email, password } = escape({
+    ...req.body,
+    password: hash,
+  });
 
-            con.query(userQueries.GET_ME_BY_USERNAME, [req.body.username], function (err, user){
-                if(err) {
-                    res.status(500);
-                    res.send({msg: 'Could not retrieve user. '});
-                }
+  const con = await connection().catch((err) => {
+    throw err;
+  });
 
-                console.log(user);
-                res.send(user);
-            });
-        });
+  const user = await query(con, GET_ME_BY_USERNAME(username)).catch((err) => {
+    console.log(err);
+    res.status(500).json({ msg: 'Could not retrieve user.' });
+  });
+
+  console.log('THIS IS USER THIS IS USER THIS IS USER' + user)
+
+  if (user.length === 1) {
+    res.status(403).json({ msg: 'User already exists!' });
+  } else {
+    // add new user
+    const result = await query(
+      con,
+      INSERT_NEW_USER(username, email, password)
+    ).catch((err) => {
+      console.log(err);
+      res
+        .status(500)
+        .json({ msg: 'Could not register user. Please try again later.' });
+    });
+
+    if (result.affectedRows === 1) {
+      res.json({ msg: 'New user created!' });
+    }
+  }
 };
 
-exports.login = function(req, res){
-    con.query(userQueries.GET_ME_BY_USERNAME_WITH_PASSWORD, [req.body.username], function(err, user){
-        if(err) {
-            res.status(500);
-            res.send({msg: 'Could not retrieve user.'});
-        }
+exports.login = async (req, res) => {
+  const { username } = escape(req.body);
+  const { password } = req.body;
 
-        console.log(user);
+  const con = await connection().catch((err) => {
+    throw err;
+  });
 
-        bcrypt
-            .compare(req.body.password, user[0].password)
-            .then(function(validPass){
-                if (!validPass){
-                    res.status(400).send({ msg: 'invalid password!'});
-                }
+  // check for existing user first
+  const user = await query(
+    con,
+    GET_ME_BY_USERNAME_WITH_PASSWORD(username)
+  ).catch((err) => {
+    console.log(err);
+    res.status(500).json({ msg: 'Could not retrieve user.' });
+  });
 
-                const token = jwt.sign({ id: user[0].user_id}, jwtconfig.secret);
-                res
-                    .header('auth-token', token)
-                    .send({ auth: true, msg: 'Logged in!'});
-            })
-            .catch(console.log);
+  if (user.length === 1) {
+    //   validate entered password from database saved password
+    const validPass = await bcrypt
+      .compare(password, user[0].password)
+      .catch((err) => {
+        console.log(err);
+        res.json(500).json({ msg: 'Invalid password!' });
+      });
+
+    if (!validPass) {
+      res.status(400).json({ msg: 'Invalid password!' });
+    }
+    // create token
+    const accessToken = generateAccessToken(user[0].user_id, {
+      expiresIn: 86400,
     });
+    const refreshToken = generateRefreshToken(user[0].user_id, {
+      expiresIn: 86400,
+    });
+
+    refreshTokens.push(refreshToken);
+
+    res
+      .header('access_token', accessToken) 
+      .json({
+        auth: true,
+        msg: 'Logged in!',
+        token_type: 'bearer',
+        access_token: accessToken,
+        expires_in: 86400,
+        refresh_token: refreshToken,
+      });
+  } else {
+    res.status(401).json({ msg: 'Invalid login credentials.' });
+  }
 };
 
-exports.updateUser = function(req, res) {
-    con.query(userQueries.GET_ME_BY_USERNAME_WITH_PASSWORD, [req.user.id], function(err, user){
-        console.log(err, user);
-        if(err) {
-            res.status(500);
-            res.send({ msg: 'Could not retrieve user.' });
-        }
+exports.token = (req, res) => {
+  const refreshToken = req.body.token;
 
-        console.log(user);
+  if (!refreshToken) {
+    res
+      .status(401)
+      .json({ auth: false, msg: 'Access Denied. No token provided.' });
+  }
 
-        const passwordHash = bcrypt.hashSync(req.body.password);
+  if (!refreshTokens.includes(refreshToken)) {
+    res.status(403).json({ msg: 'Invalid Refresh Token' });
+  }
 
-        con.query(authQueries.UPDATE_USER, [req.body.username, req.body.email, passwordHash, user[0].id],
-            function(err, result){
-                if (err) {
-                    console.log(err);
-                    res.status(500).send({ msg: 'Could not update user settings.'});
-                }
-                res.json({ msg: 'Updated successfully'});
-            });
-    });
+  const verified = verifyToken(refreshToken, jwtconfig.refresh, req, res);
+
+  if (verified) {
+    const accessToken = generateToken(user[0].user_id, { expiresIn: 86400 });
+    res
+      .header('access_token', accessToken) 
+      .json({
+        auth: true,
+        msg: 'Logged in!',
+        token_type: 'bearer',
+        access_token: accessToken,
+        expires_in: 20,
+        refresh_token: refreshToken,
+      });
+  }
+  res.status(403).json({ msg: 'Invalid Token' });
+};
+
+exports.logout = (req, res) => {
+  const refreshToken = req.body.token;
+  refreshTokens = refreshTokens.filter((t) => t !== refreshToken);
+
+  res.json({ msg: 'Logout successful' });
 };
