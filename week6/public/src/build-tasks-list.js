@@ -1,18 +1,8 @@
-/**
- * @class TaskList
- *
- * Creates a list of tasks and updates a list
- */
-
 class TaskList {
   tasks = [];
 
   constructor() {}
 
-  /**
-   * Build task list parent.
-   * Uses bootstrap classes with some custom overrides.
-   */
   createTaskListParent = () => {
     const ul = document.createElement('ul');
     ul.id = 'tasks-list';
@@ -39,19 +29,6 @@ class TaskList {
     }
   };
 
-  /**
-   * Builds the list item.
-   * Uses bootstrap classes with some custom overrides.
-   *
-   * {@link https://getbootstrap.com/docs/4.4/components/list-group/}
-   * @example
-   * <li class="list-group-item">
-   *   <button class="btn btn-secondary" onclick="deleteTask(e, index)">X</button>
-   *   <span>Task name</span>
-   *   <span>pending</span>
-   *   <span>date create</span>
-   * </li>
-   */
   buildTaskListRowItem = (task) => {
     const listGroupItem = document.createElement('li');
     listGroupItem.id = `task-${task.task_id}`; // task-1
@@ -75,7 +52,6 @@ class TaskList {
     const taskDate = document.createTextNode(task.created_date);
     taskDateSpan.append(taskDate);
 
-    // add list item's details
     listGroupItem.append(deleteBtn);
     listGroupItem.append(taskNameSpan);
     listGroupItem.append(taskStatusSpan);
@@ -84,15 +60,10 @@ class TaskList {
     return listGroupItem;
   };
 
-  /**
-   * Assembles the list items then mounts them to a parent node.
-   * Uses bootstrap classes with some custom overrides.
-   */
   buildTasksList = (mount, tasks) =>
     tasks.map((task) => {
       const listGroupRowItem = this.buildTaskListRowItem(task);
 
-      // add entire list item
       mount.append(listGroupRowItem);
     });
 
@@ -124,7 +95,6 @@ class TaskList {
 
 const inst = new TaskList();
 
-// This is an IIFE (Immediately Invoked Function Expression).
 (async () => {
   inst.generateTasks();
 })();
