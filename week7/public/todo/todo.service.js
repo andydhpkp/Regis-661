@@ -16,19 +16,19 @@ class ToDo {
     this.render();
   }
 
-  /**
-   * DOM renderer for building the list row item.
-   * Uses bootstrap classes with some custom overrides.
-   *
-   * {@link https://getbootstrap.com/docs/4.4/components/list-group/}
-   * @example
-   * <li class="list-group-item">
-   *   <button class="btn btn-secondary" onclick="deleteTask(e, index)">X</button>
-   *   <span>Task name</span>
-   *   <span>pending</span>
-   *   <span>date create</span>
-   * </li>
-   */
+  getTasks = async () => {
+    try {
+      const data = await tasksService.getTasks();
+      const tasksDb = data.data;
+      if (tasksDb?.length > 0) {
+        this.tasks = tasksDb;
+      }
+    }
+    catch(err) {
+      console.log(err)
+    }
+  }
+
   _renderListRowItem = (task) => {
     const listGroupItem = document.createElement('li');
     listGroupItem.id = `task-${task.task_id}`;
@@ -62,9 +62,6 @@ class ToDo {
     return listGroupItem;
   };
 
-  /**
-   * DOM renderer for assembling the list items then mounting them to a parent node.
-   */
   _renderList = () => {
     // get the "Loading..." text node from parent element
     const tasksDiv = document.getElementById('tasks');
@@ -77,7 +74,6 @@ class ToDo {
     this.tasks.map((task) => {
       const listGroupRowItem = this._renderListRowItem(task);
 
-      // add entire list item
       ul.appendChild(listGroupRowItem);
     });
 
@@ -85,9 +81,6 @@ class ToDo {
     tasksDiv.replaceChild(fragment, loadingDiv);
   };
 
-  /**
-   * DOM renderer for displaying a default message when a user has an empty list.
-   */
   _renderMsg = () => {
     const tasksDiv = document.getElementById('tasks');
     const loadingDiv = tasksDiv.childNodes[0];
@@ -101,11 +94,6 @@ class ToDo {
     }
   };
 
-  /**
-   * Pure function for adding a task.
-   *
-   * @param {Object} newTask - form's values as an object
-   */
   addTask = async (newTask) => {
     try {
       const { task_name, status } = newTask;
@@ -117,11 +105,6 @@ class ToDo {
     }
   };
 
-  /**
-   * DOM Event handler helper for adding a task to the DOM.
-   *
-   * @param {number} taskId - id of the task to delete
-   */
   _addTaskEventHandler = () => {
     const taskInput = document.getElementById('formInputTaskName');
     const task_name = taskInput.value;
@@ -131,7 +114,6 @@ class ToDo {
     const selectedIndex = statusSelect.selectedIndex;
     const status = options[selectedIndex].text;
 
-    // validation checks
     if (!task_name) {
       alert('Please enter a task name.');
       return;
@@ -152,11 +134,6 @@ class ToDo {
     taskInput.value = ''; // clear form text input
   };
 
-  /**
-   * Create the DOM element for the new task with all its parts.
-   *
-   * @param {Object} task - { task_name, status } partial status object
-   */
   _createNewTaskEl = (task) => {
     const task_id = this.tasks.length;
     const created_date = new Date().toISOString();
@@ -166,11 +143,6 @@ class ToDo {
     return { newTask, newTaskEl };
   };
 
-  /**
-   * Pure function for deleting a task.
-   *
-   * @param {number} taskId - id for the task to be deleted
-   */
   deleteTask = async (taskId) => {
     try {
       const res = await this.tasksService.deleteTask(taskId);
@@ -185,12 +157,6 @@ class ToDo {
     }
   };
 
-  /**
-   * DOM Event handler helper for deleting a task from the DOM.
-   * This relies on a pre-existing in the list of tasks.
-   *
-   * @param {number} taskId - id of the task to delete
-   */
   _deleteEventHandler = (taskId) => () => {
     const task = document.getElementById(`task-${taskId}`);
     task.remove();
@@ -202,11 +168,6 @@ class ToDo {
     });
   };
 
-  /**
-   * Creates a message div block.
-   *
-   * @param {string} msg - custom message to display
-   */
   _createMsgElement = (msg) => {
     const msgDiv = document.createElement('div');
     const text = document.createTextNode(msg);
@@ -231,4 +192,18 @@ class ToDo {
       alert(`Error: ${err.message}`);
     }
   };
+
+  updateTask = async (taskId) => {
+    try {
+      const res = await this.tasksService.updateTask(taskId);
+      this.tasks = this.tasks.filter((task) => task.task_id !== taskId);
+
+      if (res !== null) {
+        alert('Task updated successfully!');
+      }
+      return res;
+    } catch (err) {
+      alert('Unable to delete task. Please try again later.');
+    }
+  }
 }

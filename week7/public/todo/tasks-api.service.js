@@ -6,4 +6,6 @@ class TasksService {
   addTask = (formData) => _post(TASKS_API, formData, DEFAULT_OPTIONS_WITH_AUTH);
 
   deleteTask = (taskId) => _delete(`${TASKS_API}/${taskId}`, OPTIONS_WITH_AUTH);
+
+  updateTask = (taskId) => _put(`${TASKS_API}/${taskId}`, OPTIONS_WITH_AUTH)
 }

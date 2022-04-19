@@ -4,7 +4,8 @@
   "description": "Serving our website to a browser and extend our website's capabilities with an API.",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon ./server"
+    "start": "nodemon ./server",
+    "test": "NODE_ENV='test' mocha ./public/tests/*"
   },
   "author": "",
   "license": "ISC",
