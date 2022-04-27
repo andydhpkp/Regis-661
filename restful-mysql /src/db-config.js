@@ -1,56 +1,37 @@
 const mysql = require('mysql');
-const { CREATE_USERS_TABLE } = require('./queries/user.queries');
-const { CREATE_TASKS_TABLE } = require('./queries/tasks.queries');
-const query = require('./utils/query');
-require('dotenv').config();
+const queries = require('./queries/orderdetails.queries');
+const authQueries = require('./queries/auth.queries');
 
 const host = process.env.DB_HOST || 'localhost';
 
 const user = process.env.DB_USER || 'root';
 
-const password = process.env.DB_PASS || 'password';
+const password = process.env.DB_PASS || 'Ngjngjngj2';
 
-const database = process.env.DB_DATABASE || 'tododb';
+const database = process.env.DB_DATABASE || 'ordersdb';
 
-const connection = async () =>
-  new Promise((resolve, reject) => {
-    const con = mysql.createConnection({
-      host,
-      user,
-      password,
-      database,
-    });
-
-    con.connect((err) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-    });
-
-    resolve(con);
+// Create the connection with required details
+const con = mysql.createConnection({
+    host,
+    user,
+    password,
+    database
   });
 
-(async () => {
-  const _con = await connection().catch((err) => {
-    throw err;
+  // Connect to the database.
+con.connect(function(err) {
+    if (err) throw err;
+    console.log('Connected!');
+
+    con.query(authQueries.CREATE_USERS_TABLE, function(err, result) {
+      if (err) throw err;
+      console.log('Users table created or exists already!');
+    });
+  
+    con.query(queries.CREATE_ORDERDETAILS_TABLE, function(err, result) {
+      if (err) throw err;
+      console.log('Orderdetails table created or exists already!');
+    });
   });
-
-  const userTableCreated = await query(_con, CREATE_USERS_TABLE).catch(
-    (err) => {
-      console.log(err);
-    }
-  );
-
-  const tasksTableCreated = await query(_con, CREATE_TASKS_TABLE).catch(
-    (err) => {
-      console.log(err);
-    }
-  );
-
-  if (!!userTableCreated && !!tasksTableCreated) {
-    console.log('Tables Created!');
-  }
-})();
-
-module.exports = connection;
+  
+  module.exports = con;
