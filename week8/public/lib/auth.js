@@ -15,7 +15,7 @@ const doLogin = async (e) => {
       setStorage('access_token', access_token);
       setStorage('refresh_token', refresh_token);
 
-      window.location.href = 'todo/todo.html';
+      window.location.href = 'orderlist/home.html';
     } else {
       console.log(msg);
       alert(msg);

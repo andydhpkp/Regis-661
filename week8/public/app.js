@@ -1,4 +1,4 @@
-const tasksService = new TasksService();
-const todo = new ToDo(tasksService);
+const ordersService = new OrdersService();
+const order = new OrderList(ordersService);
 
-todo.init();
+order.init();

@@ -11,7 +11,7 @@
       integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
       crossorigin="anonymous"
     />
-    <title>Your Tasks</title>
+    <title>Your Orders</title>
   </head>
   <body>
     <header>
@@ -22,7 +22,7 @@
             <a class="nav-link" href="/">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="./about.html">About</a>
+            <a class="nav-link" href="../about.html">About</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="../settings/settings.html">Settings</a>
@@ -34,17 +34,17 @@
     </header>
 
     <div class="container">
-      <div class="task-form">
+      <div class="order-form">
         <form>
           <div class="form-row">
             <div class="col-md-6">
-              <label class="sr-only" for="formInputTaskName">Task Name</label>
+              <label class="sr-only" for="formInputOrderName">Order Name</label>
               <input
-                id="formInputTaskName"
+                id="formInputOrderName"
                 class="form-control"
                 type="text"
-                name="task-name"
-                placeholder="Task name"
+                name="order-name"
+                placeholder="Order name"
               />
             </div>
             <div class="col-md-3">
@@ -52,7 +52,7 @@
               <select
                 id="formSelectStatus"
                 class="custom-select mr-sm-2"
-                name="task-name"
+                name="Order-name"
               >
                 <option value="1" selected>pending</option>
                 <option value="2">completed</option>
@@ -62,7 +62,7 @@
               <button
                 type="submit"
                 class="btn btn-primary"
-                onclick="doAddTask(event)"
+                onclick="doAddOrder(event)"
               >
                 ADD
               </button>
@@ -71,14 +71,15 @@
         </form>
       </div>
 
-      <div id="tasks">Loading...</div>
+      <div id="orders">Loading...</div>
     </div>
 
     <footer>
       <div class="author">
-        <p>Author: <a href="https://github.com/chan1ks">Morgan Worrell</a></p>
+        <p>Author: <a href="https://github.com/andydhpkp">Andrew Durham</a></p>
       </div>
     </footer>
+
     <script src="../lib/api.config.js"></script>
     <script src="../lib/simple-storage.js"></script>
     <script src="../lib/service-helpers.js"></script>
@@ -86,9 +87,9 @@
     <script src="../lib/user-api.service.js"></script>
     <script src="../lib/auth.js"></script>
     <script src="../lib/auth.guard.js"></script>
-    <script src="./tasks-api.service.js"></script>
-    <script src="./todo.service.js"></script>
-    <script src="./todo.js"></script>
+    <script src="./orders-api.service.js"></script>
+    <script src="./orderList.service.js"></script>
+    <script src="./order.js"></script>
     <script src="../app.js"></script>
   </body>
 </html>

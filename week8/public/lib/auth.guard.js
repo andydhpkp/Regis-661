@@ -9,6 +9,6 @@
     window.location.pathname === '/login.html' &&
     authService.isAuth()
   ) {
-    window.location.href = 'todo/todo.html';
+    window.location.href = 'order/home.html';
   }
 })();
